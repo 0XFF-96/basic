@@ -1,0 +1,5 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # 艹，basic 和 base 之间的区别
+  - basic-service.yaml

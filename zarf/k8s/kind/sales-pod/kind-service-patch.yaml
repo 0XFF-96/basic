@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-pod
+  namespace: sales-system
+
+spec:
+  selector:
+    matchLabels:
+      app: service
+
+  replicas: 1
+
+  strategy:
+    type: Recreate
+
+  template:
+    metadata:
+      labels:
+        app: service
+
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+
+      containers:
+        - name: sales-api
+          image: service-arm:1.0
+          resources:
+            requests:
+              cpu: "1000m" # I need access to 1/2 core on the node.
+            limits:
+              cpu: "2000m" # Execute instructions 50ms/100ms on my 1 core.

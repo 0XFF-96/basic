@@ -46,7 +46,11 @@ kind-load:
 	kind load docker-image service-arm:1.0 --name $(KIND_CLUSTER)
 
 kind-apply:
-	cat zarf/k8s/basic/service-pod/basic-service.yaml | kubectl apply -f -
+
+	# 以前不用 kustomize 时的命令
+	# cat zarf/k8s/basic/service-pod/basic-service.yaml | kubectl apply -f -
+	kustomize build zarf/k8s/kind/sales-pod | kubectl apply -f -
+
 
 # 同时会清空, namespace
 kind-delete:
@@ -70,6 +74,8 @@ dev-restart:
 	kubectl rollout restart deployment $(APP) --namespace=$(NAMESPACE)
 
 dev-update: all kind-load dev-restart
+
+dev-update-apply: all kind-load kind-apply
 
 dev-logs:
 	kubectl logs --namespace=$(NAMESPACE) -l app=service --all-containers=true -f --tail=100
