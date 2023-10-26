@@ -8,6 +8,7 @@ RUN mkdir /services
 COPY . /service/
 WORKDIR /service/app/services/sales-api
 
+# can't build a exec format lol 
 # RUN go mod download
 RUN go build -o sales-api -ldflags "-X main.build=local"
 
