@@ -11,6 +11,7 @@ import (
 var build = "develop"
 
 func main() {
+
 	g := runtime.GOMAXPROCS(0)
 	log.Printf("service started env:%s update! CPU[%d]", build, g)
 	defer log.Println("service ended!")
