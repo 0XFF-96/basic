@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: service-pod
+  name: sales-pod
   namespace: sales-system
 
 spec:
   selector:
     matchLabels:
-      app: service
+      app: sales
 
   replicas: 1
 
@@ -17,7 +17,7 @@ spec:
   template:
     metadata:
       labels:
-        app: service
+        app: sales
 
     spec:
       dnsPolicy: ClusterFirstWithHostNet
@@ -25,7 +25,9 @@ spec:
 
       containers:
         - name: sales-api
-          image: service-arm:1.0
+
+          # 现在硬编码了 镜像的版本，后续肯定不能这样做的～需要找到方法，
+          image: sales-api-image:1.0
           resources:
             requests:
               cpu: "1000m" # I need access to 1/2 core on the node.

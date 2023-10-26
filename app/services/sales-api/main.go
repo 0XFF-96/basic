@@ -1,4 +1,4 @@
-package main
+package sales_api
 
 import (
 	_ "go.uber.org/automaxprocs"
@@ -13,7 +13,6 @@ import (
 var build = "develop"
 
 func main() {
-
 	if _, err := maxprocs.Set(); err != nil {
 		log.Printf("set procs err:%v", err)
 	}

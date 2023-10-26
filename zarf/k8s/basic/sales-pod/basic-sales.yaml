@@ -4,7 +4,7 @@ metadata:
   # deployment 的名字，
   # kubectl rollout restart deployment $(APP) --namespace=$(NAMESPACE)
   # 是什么 $(APP) 名字的替换
-  name: service-pod
+  name: sales-pod
   namespace: sales-system
 
 spec:
@@ -12,27 +12,27 @@ spec:
     matchLabels:
       # 这个是 pod 的名字
       # 例如，在查看 logs 的时候，需要用到这个名字，指定某一 pod
-      # kubectl logs --namespace=$(NAMESPACE) -l app=service --all-containers=true -f --tail=100
-      app: service
+      # kubectl logs --namespace=$(NAMESPACE) -l app=services --all-containers=true -f --tail=100
+      app: sales
 
   template:
     metadata:
       labels:
-        app: service
+        app: sales
 
     spec:
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
 
       containers:
-        - name: service-api
+        - name: sales-api
           # 这种写死的 image 背后参数，需要特别注意⚠️
-          # service-arm:1.0 , 1.0 是指在 docker 进行应用打包的时候，应用的标签🏷️，后续会不断地频繁变动的。不应该写死❌
+          # services-arm:1.0 , 1.0 是指在 docker 进行应用打包的时候，应用的标签🏷️，后续会不断地频繁变动的。不应该写死❌
           #
-          image: service-arm:1.0
+          image: sales-api-image:1.0
 
           ports:
-            - name: service-api
+            - name: services-api
               containerPort: 3000
             - name: srv-api-debug
               containerPort: 4000

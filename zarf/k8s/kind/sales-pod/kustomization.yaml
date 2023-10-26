@@ -1,9 +1,16 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-resources:
   # 拉去这个目录的内容进来
-- ../../basic/service-pod
+resources:
+- ../../basic/sales-pod
 
 patches:
-  - path: ./kind-service-patch.yaml
+- path: kind-sales-patch.yaml
 
+images:
+- name: sales-api
+  newName: sales-api-amd64
+  newTag: salse-api
+- name: sales-api-image
+  newName: sales-api-image-arm64
+  newTag: "1.1"

@@ -4,8 +4,10 @@ SHELL := /bin/bash
 KIND_CLUSTER := jimmy-cluster
 KIND         := kindest/node:v1.27.3
 NAMESPACE       := sales-system
-APP             := service-pod
+APP             := sales-pod
 
+# SERVICE_IMAGE   := $(BASE_IMAGE_NAME)/$(SERVICE_NAME):$(VERSION)
+SERVICE_IMAGE := salse-api
 
 run:
 	go run main.go
@@ -16,12 +18,12 @@ build:
 
 VERSION := 1.0
 
-all: service
+all: sales-api
 
-service:
+sales-api:
 	docker build \
-		-f zarf/docker/Dockerfile \
-		-t service-arm:1.0 \
+		-f zarf/docker/sales-api.Dockerfile \
+		-t sales-api-image:$(VERSION) \
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 		.
@@ -43,18 +45,18 @@ dev-status:
 	kubectl get pods -n=sales-system -o wide --watch
 
 kind-load:
-	kind load docker-image service-arm:1.0 --name $(KIND_CLUSTER)
+	cd zarf/k8s/kind/sales-pod; kustomize edit set image sales-api=sales-api-amd64:$(SERVICE_IMAGE)
+	kind load docker-image sales-api-image:1.0 --name $(KIND_CLUSTER)
 
 kind-apply:
 
 	# 以前不用 kustomize 时的命令
-	# cat zarf/k8s/basic/service-pod/basic-service.yaml | kubectl apply -f -
+	# cat zarf/k8s/basic/services-pod/basic-services.yaml | kubectl apply -f -
 	kustomize build zarf/k8s/kind/sales-pod | kubectl apply -f -
-
 
 # 同时会清空, namespace
 kind-delete:
-	cat zarf/k8s/basic/service-pod/basic-service.yaml | kubectl delete -f -
+	cat zarf/k8s/basic/sales-pod/basic-sales.yaml | kubectl delete -f -
 
 
 view-images:
@@ -78,4 +80,4 @@ dev-update: all kind-load dev-restart
 dev-update-apply: all kind-load kind-apply
 
 dev-logs:
-	kubectl logs --namespace=$(NAMESPACE) -l app=service --all-containers=true -f --tail=100
+	kubectl logs --namespace=$(NAMESPACE) -l app=sales --all-containers=true -f --tail=100

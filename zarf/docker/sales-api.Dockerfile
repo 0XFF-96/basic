@@ -2,11 +2,11 @@ FROM golang:1.21.3 as build_sales-api
 ENV CGO_ENABLED 0
 ARG BUILD_REF
 
-RUN mkdir /service
+RUN mkdir /services
 
-# COPY go.* /service/ , 这行命令为什么就不行了呢... 真是奇怪了，奇怪
+# COPY go.* /services/ , 这行命令为什么就不行了呢... 真是奇怪了，奇怪
 COPY . /service/
-WORKDIR /service
+WORKDIR /service/app/services/sales-api
 
 # RUN go mod download
 RUN go build -ldflags "-X main.build=local"
@@ -18,15 +18,17 @@ ARG BUILD_REF
 
 # 少了这个，会导致 CreateContainerError , 找不到用户
 RUN addgroup -g 1000 -S sales && \
-    adduser -u 1000 -h /service -G sales -S sales
+    adduser -u 1000 -h /services -G sales -S sales
 
-COPY --from=build_sales-api --chown=sales:sales /service /service/
+# COPY --from=build_sales-api --chown=sales:sales /services /services/
+COPY --from=build_sales-api --chown=sales:sales /service/app/services/sales-api/ /service/sales-api
+
 WORKDIR /service/
 USER sales
 
 # Docker 启动二进制文件的命令，必须要和 go.mod 的 moudles 名字进行对应起来。
 # module github.com/yourusername/basic-a， 这个的后缀，打包出来后，是 basic-a 的二进制文件～
-CMD ["./basic-a"]
+CMD ["./sales-api"]
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.title="sales-api" \
