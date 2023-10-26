@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "go.uber.org/automaxprocs"
+	"go.uber.org/automaxprocs/maxprocs"
 	"log"
 	"os"
 	"os/signal"
@@ -13,6 +14,10 @@ var build = "develop"
 
 func main() {
 
+	if _, err := maxprocs.Set(); err != nil {
+		log.Printf("set procs err:%v", err)
+	}
+	
 	g := runtime.GOMAXPROCS(0)
 	log.Printf("service started env:%s update! CPU[%d]", build, g)
 	defer log.Println("service ended!")
