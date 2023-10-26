@@ -7,10 +7,12 @@ resources:
 patches:
 - path: kind-sales-patch.yaml
 
+
+  # 这个  tag 需要和 docker build 的 Tag 相互对应起来
 images:
 - name: sales-api
   newName: sales-api-amd64
   newTag: salse-api
 - name: sales-api-image
-  newName: sales-api-image-arm64
+  newName: sales-api-image-arm
   newTag: "1.1"

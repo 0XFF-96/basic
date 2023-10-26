@@ -9,7 +9,7 @@ COPY . /service/
 WORKDIR /service/app/services/sales-api
 
 # RUN go mod download
-RUN go build -ldflags "-X main.build=local"
+RUN go build -o sales-api -ldflags "-X main.build=local"
 
 # Run the Go Binary in Alpine.
 FROM alpine:3.18
@@ -23,11 +23,14 @@ RUN addgroup -g 1000 -S sales && \
 # COPY --from=build_sales-api --chown=sales:sales /services /services/
 COPY --from=build_sales-api --chown=sales:sales /service/app/services/sales-api/ /service/sales-api
 
-WORKDIR /service/
+WORKDIR /service/sales-api
 USER sales
 
 # Docker 启动二进制文件的命令，必须要和 go.mod 的 moudles 名字进行对应起来。
 # module github.com/yourusername/basic-a， 这个的后缀，打包出来后，是 basic-a 的二进制文件～
+RUN chmod +x ./sales-api
+
+# 这个二进制文件的名称，依赖与哪个文件和哪些命令？
 CMD ["./sales-api"]
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
