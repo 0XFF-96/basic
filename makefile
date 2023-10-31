@@ -10,7 +10,7 @@ APP             := sales-pod
 SERVICE_IMAGE := salse-api
 
 run:
-	go run app/services/sales-api/main.go --help
+	go run app/services/sales-api/main.go | go run app/tooling/logfmt/main.go
 
 build:
 	# 这行，可以更加运行环境的不一样，动态修改程序运行的变量
