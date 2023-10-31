@@ -1,6 +1,6 @@
 module github.com/yourusername/basic-a
 
-go 1.17
+go 1.20
 
 require (
 	github.com/ardanlabs/conf/v3 v3.1.7
