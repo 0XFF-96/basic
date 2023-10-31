@@ -10,7 +10,7 @@ APP             := sales-pod
 SERVICE_IMAGE := salse-api
 
 run:
-	go run main.go
+	go run app/services/sales-api/main.go --help
 
 build:
 	# 这行，可以更加运行环境的不一样，动态修改程序运行的变量
@@ -63,8 +63,8 @@ kind-delete:
 view-images:
 	docker exec -it jimmy-cluster-control-plane crictl images
 
-dev-logs:
-	kubectl logs --namespace=$(NAMESPACE) -l app=$(APP) --all-containers=true -f --tail=100 --max-log-requests=6 | go run app/tooling/logfmt/main.go -service=$(SERVICE_NAME)
+#dev-logs:
+#	kubectl logs --namespace=$(NAMESPACE) -l app=$(APP) --all-containers=true -f --tail=100 --max-log-requests=6 | go run app/tooling/logfmt/main.go -service=$(SERVICE_NAME)
 
 dev-logs-init:
 	kubectl logs --namespace=$(NAMESPACE) -l app=$(APP) -f --tail=100 -c init-vault-system
