@@ -63,8 +63,8 @@ func run(log *zap.SugaredLogger) error {
 			ShutdownTimeout time.Duration `conf:"default:20s"`
 			APIHost         string        `conf:"default:0.0.0.0:3000"`
 
-			# `conf:"default:0.0.0.0:4000,noprint"`
-			DebugHost       string        `conf:"default:0.0.0.0:4000,mask"`
+			// `conf:"default:0.0.0.0:4000,noprint"`
+			DebugHost string `conf:"default:0.0.0.0:4000,mask"`
 		}
 		Vault struct {
 			Address   string `conf:"default:http://0.0.0.0:8200"`
@@ -121,7 +121,6 @@ func run(log *zap.SugaredLogger) error {
 	}
 	log.Infow("startup", "config", out)
 
-
 	// =========================================================================
 	// Shutdown
 
@@ -130,7 +129,6 @@ func run(log *zap.SugaredLogger) error {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 	<-shutdown
-
 
 	return nil
 }
