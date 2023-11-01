@@ -1,6 +1,9 @@
 # github.com/ardanlabs/conf/v3 v3.1.7
 ## explicit; go 1.13
 github.com/ardanlabs/conf/v3
+# github.com/dimfeld/httptreemux/v5 v5.5.0
+## explicit; go 1.9
+github.com/dimfeld/httptreemux/v5
 # github.com/jmoiron/sqlx v1.3.5
 ## explicit; go 1.10
 github.com/jmoiron/sqlx
