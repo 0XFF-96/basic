@@ -100,3 +100,9 @@ kind-up:
 
 kind-down:
 	kind delete cluster --name $(KIND_CLUSTER)
+
+kind-restart:
+	kubectl rollout restart deployment sales-pod
+
+kind-update: all kind-load kind-restart
+
