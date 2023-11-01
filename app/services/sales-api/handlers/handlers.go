@@ -26,6 +26,35 @@ func DebugStandardLibraryMux() *http.ServeMux {
 	return mux
 }
 
+// vars 包的相关作用～
+// 	mux.Handle("/debug/vars", expvar.Handler())
+
+// Do calls f for each exported variable.
+// The global variable map is locked during the iteration,
+// but existing entries may be concurrently updated.
+//func Do(f func(KeyValue)) {
+//	varKeysMu.RLock()
+//	defer varKeysMu.RUnlock()
+//	for _, k := range varKeys {
+//		val, _ := vars.Load(k)
+//		f(KeyValue{k, val.(Var)})
+//	}
+//}
+//
+//func expvarHandler(w http.ResponseWriter, r *http.Request) {
+//	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+//	fmt.Fprintf(w, "{\n")
+//	first := true
+//	Do(func(kv KeyValue) {
+//		if !first {
+//			fmt.Fprintf(w, ",\n")
+//		}
+//		first = false
+//		fmt.Fprintf(w, "%q: %s", kv.Key, kv.Value)
+//	})
+//	fmt.Fprintf(w, "\n}\n")
+//}
+
 // DebugMux registers all the debug standard library routes and then custom
 // debug application routes for the service. This bypassing the use of the
 // DefaultServerMux. Using the DefaultServerMux would be a security risk since

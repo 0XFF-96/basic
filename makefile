@@ -1,5 +1,14 @@
 SHELL := /bin/bash
 
+
+#====================== Testing System ===========================+
+# Access metrics directly (4000) or through the sidecar (3001)
+# go install github.com/divan/expvarmon@latest
+run-exp:
+ 	expvarmon -ports=":4000" -vars="build,requests,goroutines,errors,panics,mem:memstats.Alloc"
+# expvarmon -ports=":3001" -endpoint="/metrics" -vars="build,requests,goroutines,errors,panics,mem:memstats.Alloc"
+
+
 # 固定变量
 KIND_CLUSTER := jimmy-cluster
 KIND         := kindest/node:v1.27.3

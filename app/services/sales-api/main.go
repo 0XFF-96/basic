@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"expvar"
 	"fmt"
 	"github.com/ardanlabs/conf/v3"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers"
@@ -122,6 +123,7 @@ func run(log *zap.SugaredLogger) error {
 		return fmt.Errorf("generating config for output: %w", err)
 	}
 	log.Infow("startup", "config", out)
+	expvar.NewString("build").Set(build)
 
 	// =========================================================================
 	// Start Debug Service
