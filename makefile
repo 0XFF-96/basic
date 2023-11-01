@@ -81,3 +81,13 @@ dev-update-apply: all kind-load kind-apply
 
 dev-logs:
 	kubectl logs --namespace=$(NAMESPACE) -l app=sales --all-containers=true -f --tail=100
+
+kind-up:
+	kind create cluster \
+		--image kindest/node:v1.25.2@sha256:9be91e9e9cdf116809841fc77ebdb8845443c4c72fe5218f3ae9eb57fdb4bace \
+		--name $(KIND_CLUSTER) \
+		--config zarf/k8s/kind/kind-config.yaml
+	kubectl config set-context --current --namespace=sales-system
+
+kind-down:
+	kind delete cluster --name $(KIND_CLUSTER)
