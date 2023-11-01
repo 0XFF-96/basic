@@ -55,7 +55,7 @@ kind-apply:
 	# 以前不用 kustomize 时的命令
 	# cat zarf/k8s/basic/services-pod/basic-services.yaml | kubectl apply -f -
 	kustomize build zarf/k8s/kind/sales-pod | kubectl apply -f -
-
+	# kubectl rollout status deployment/sales-pod
 
 kind-delete:
 	cat zarf/k8s/basic/sales-pod/basic-sales.yaml | kubectl delete -f -
