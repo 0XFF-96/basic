@@ -30,13 +30,31 @@ spec:
           # services-arm:1.0 , 1.0 是指在 docker 进行应用打包的时候，应用的标签🏷️，后续会不断地频繁变动的。不应该写死❌
           #
           image: sales-api-image:1.0
-
           ports:
             - name: sales-api
               containerPort: 3000
             - name: sales-api-debug
               containerPort: 4000
 
+          readinessProbe: # readiness probes mark the service available to accept traffic.
+            httpGet:
+              path: /debug/readiness
+              port: 4000
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+
+          livenessProbe: # liveness probes mark the service alive or dead (to be restarted).
+            httpGet:
+              path: /debug/liveness
+              port: 4000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
 ---
 apiVersion: v1
 kind: Service

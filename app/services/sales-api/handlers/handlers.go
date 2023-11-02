@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"encoding/json"
 	"expvar"
 	"github.com/dimfeld/httptreemux/v5"
 	"github.com/jmoiron/sqlx"
+	"github.com/yourusername/basic-a/app/services/sales-api/handlers/debug/checkgrp"
+	"github.com/yourusername/basic-a/app/services/sales-api/handlers/v1/testgrp"
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/pprof"
@@ -66,13 +67,13 @@ func DebugMux(build string, log *zap.SugaredLogger, db *sqlx.DB) http.Handler {
 	mux := DebugStandardLibraryMux()
 
 	// Register debug check endpoints.
-	//cgh := checkgrp.Handlers{
-	//	Build: build,
-	//	Log:   log,
-	//	DB:    db,
-	//}
-	//mux.HandleFunc("/debug/readiness", cgh.Readiness)
-	//mux.HandleFunc("/debug/liveness", cgh.Liveness)
+	cgh := checkgrp.Handlers{
+		Build: build,
+		Log:   log,
+		// DB:    db,
+	}
+	mux.HandleFunc("/debug/readiness", cgh.Readiness)
+	mux.HandleFunc("/debug/liveness", cgh.Liveness)
 
 	return mux
 }
@@ -95,17 +96,14 @@ type Options struct {
 func APIMux(cfg APIMuxConfig, options ...func(opts *Options)) *httptreemux.ContextMux {
 	mux := httptreemux.NewContextMux()
 
-	h := func(w http.ResponseWriter, r *http.Request) {
-		status := struct {
-			Status string
-		}{
-			Status: "OK",
-		}
-		json.NewEncoder(w).Encode(status)
+	// Register debug check endpoints.
+	tgh := testgrp.Handlers{
+		Log: cfg.Log,
+		// DB:    db,
 	}
 
 	// handle path
-	mux.Handle(http.MethodGet, "/test", h)
+	mux.Handle(http.MethodGet, "v1/test", tgh.Test)
 
 	return mux
 }
