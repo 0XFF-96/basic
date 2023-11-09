@@ -2,7 +2,6 @@ package testgrp
 
 import (
 	"context"
-	"errors"
 	"github.com/yourusername/basic-a/foundation/web"
 	"go.uber.org/zap"
 	"math/rand"
@@ -19,7 +18,7 @@ func (h Handlers) Test(ctx context.Context, w http.ResponseWriter, r *http.Reque
 
 	randn := rand.Intn(100)
 	if randn%2 == 0 {
-		return errors.New("untrusted error")
+		panic("panic error")
 	}
 
 	if randn%5 == 0 {
