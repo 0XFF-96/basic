@@ -82,7 +82,7 @@ func (a *App) Handle(method string, group string, path string, handler Handler, 
 
 		// INJECT CODE, can only exist in the business layer
 		// Logging Started
-		if err := handler(r.Context(), w, r); err != nil {
+		if err := handler(ctx, w, r); err != nil {
 			// Logging error - handle it
 
 			// ERROR HANDLING
