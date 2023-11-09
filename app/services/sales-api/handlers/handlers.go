@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers/debug/checkgrp"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers/v1/testgrp"
+	"github.com/yourusername/basic-a/foundation/web"
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/pprof"
@@ -94,7 +95,7 @@ type Options struct {
 
 // APIMux constructs a http.Handler with all application routes defined.
 func APIMux(cfg APIMuxConfig, options ...func(opts *Options)) *httptreemux.ContextMux {
-	mux := httptreemux.NewContextMux()
+	app := web.NewApp(cfg.Shutdown)
 
 	// Register debug check endpoints.
 	tgh := testgrp.Handlers{
@@ -103,7 +104,7 @@ func APIMux(cfg APIMuxConfig, options ...func(opts *Options)) *httptreemux.Conte
 	}
 
 	// handle path
-	mux.Handle(http.MethodGet, "v1/test", tgh.Test)
+	app.Handle(http.MethodGet, "v1/test", tgh.Test)
 
-	return mux
+	return app.ContextMux
 }
