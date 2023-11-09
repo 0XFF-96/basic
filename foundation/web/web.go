@@ -4,9 +4,11 @@ package web
 import (
 	"context"
 	"github.com/dimfeld/httptreemux/v5"
+	"go.opentelemetry.io/otel/trace"
 	"net/http"
 	"os"
 	"syscall"
+	"time"
 )
 
 // A Handler is a type that handles a http request within our own little mini
@@ -62,6 +64,21 @@ func (a *App) Handle(method string, group string, path string, handler Handler, 
 
 	h := func(w http.ResponseWriter, r *http.Request) {
 		// PRE CODE PROCESSING
+		// Pull the context from the request and
+		// use it as a separate parameter.
+		ctx := r.Context()
+
+		// Capture the parent request span from the context.
+		span := trace.SpanFromContext(ctx)
+
+		// Set the context with the required values to
+		// process the request.
+		v := Values{
+			TraceID: span.SpanContext().TraceID().String(),
+			// Tracer:  a.tracer,
+			Now: time.Now().UTC(),
+		}
+		ctx = context.WithValue(ctx, key, &v)
 
 		// INJECT CODE, can only exist in the business layer
 		// Logging Started

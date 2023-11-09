@@ -11,8 +11,8 @@ func Respond(ctx context.Context, w http.ResponseWriter, data any, statusCode in
 	//ctx, span := AddSpan(ctx, "foundation.web.response", attribute.Int("status", statusCode))
 	//defer span.End()
 	//
-	//// Set the status code for the request logger middleware.
-	//SetStatusCode(ctx, statusCode)
+	// Set the status code for the request logger middleware.
+	SetStatusCode(ctx, statusCode)
 
 	// If there is nothing to marshal then set status code and return.
 	if statusCode == http.StatusNoContent {
