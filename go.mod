@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/ardanlabs/conf/v3 v3.1.7
 	github.com/dimfeld/httptreemux/v5 v5.5.0
+	github.com/google/uuid v1.4.0
 	github.com/jmoiron/sqlx v1.3.5
 	go.opentelemetry.io/otel v1.19.0
 	go.opentelemetry.io/otel/trace v1.19.0

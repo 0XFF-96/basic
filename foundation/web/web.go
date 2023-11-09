@@ -4,7 +4,7 @@ package web
 import (
 	"context"
 	"github.com/dimfeld/httptreemux/v5"
-	"go.opentelemetry.io/otel/trace"
+	"github.com/google/uuid"
 	"net/http"
 	"os"
 	"syscall"
@@ -69,12 +69,15 @@ func (a *App) Handle(method string, group string, path string, handler Handler, 
 		ctx := r.Context()
 
 		// Capture the parent request span from the context.
-		span := trace.SpanFromContext(ctx)
+		// span := trace.SpanFromContext(ctx)
 
 		// Set the context with the required values to
 		// process the request.
+
+		uuid, _ := uuid.NewUUID()
 		v := Values{
-			TraceID: span.SpanContext().TraceID().String(),
+			// TraceID: span.SpanContext().TraceID().String(),
+			TraceID: uuid.String(),
 			// Tracer:  a.tracer,
 			Now: time.Now().UTC(),
 		}

@@ -16,8 +16,14 @@ type Handlers struct {
 
 // Create adds a new user to the system.
 func (h Handlers) Test(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	if n := rand.Intn(100); n%2 == 0 {
+
+	randn := rand.Intn(100)
+	if randn%2 == 0 {
 		return errors.New("untrusted error")
+	}
+
+	if randn%5 == 0 {
+		return web.NewShutdownError("ShutdownError error")
 	}
 
 	status := struct {
