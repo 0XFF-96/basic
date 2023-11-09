@@ -104,7 +104,7 @@ func APIMux(cfg APIMuxConfig, options ...func(opts *Options)) *httptreemux.Conte
 	}
 
 	// handle path
-	app.Handle(http.MethodGet, "v1/test", tgh.Test)
+	app.Handle(http.MethodGet, "/v1/test", tgh.Test)
 
 	return app.ContextMux
 }
