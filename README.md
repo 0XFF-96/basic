@@ -14,5 +14,6 @@
         rpc error: code = NotFound desc = an error occurred when try to find container "7f8e2cb38aaa7be9777d02af5874c3025fa9e66e24a90bf575788f1961ddc3e4": not found%
 
     3. 增加 https://github.com/dimfeld/httptreemux 相关依赖
-    4. 
+    4. 重构 APIMux， 变成洋葱式和其他方式的切片架构。
+    5. 
 

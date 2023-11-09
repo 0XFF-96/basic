@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"expvar"
-	"github.com/dimfeld/httptreemux/v5"
 	"github.com/jmoiron/sqlx"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers/debug/checkgrp"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers/v1/testgrp"
@@ -94,8 +93,17 @@ type Options struct {
 }
 
 // APIMux constructs a http.Handler with all application routes defined.
-func APIMux(cfg APIMuxConfig, options ...func(opts *Options)) *httptreemux.ContextMux {
+func APIMux(cfg APIMuxConfig, options ...func(opts *Options)) *web.App {
 	app := web.NewApp(cfg.Shutdown)
+
+	// Load the routes for the difference versions API
+	v1(app, cfg)
+
+	return app
+}
+
+func v1(app *web.App, cfg APIMuxConfig) {
+	const version = "v1"
 
 	// Register debug check endpoints.
 	tgh := testgrp.Handlers{
@@ -104,7 +112,5 @@ func APIMux(cfg APIMuxConfig, options ...func(opts *Options)) *httptreemux.Conte
 	}
 
 	// handle path
-	app.Handle(http.MethodGet, "/v1/test", tgh.Test)
-
-	return app.ContextMux
+	app.Handle(http.MethodGet, version, "/test", tgh.Test)
 }

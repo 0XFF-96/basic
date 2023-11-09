@@ -1,6 +1,7 @@
 package testgrp
 
 import (
+	"context"
 	"encoding/json"
 	"go.uber.org/zap"
 	"net/http"
@@ -12,14 +13,13 @@ type Handlers struct {
 }
 
 // Create adds a new user to the system.
-func (h Handlers) Test(w http.ResponseWriter, r *http.Request) {
+func (h Handlers) Test(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	status := struct {
 		Status string `json:"status"`
 	}{
 		Status: "ok",
 	}
 
-	json.NewEncoder(w).Encode(status)
 	statusCode := http.StatusOK
 
 	h.Log.Infow("readiness",
@@ -29,5 +29,5 @@ func (h Handlers) Test(w http.ResponseWriter, r *http.Request) {
 		"remoteAddress", r.RemoteAddr,
 	)
 
-	return
+	return json.NewEncoder(w).Encode(status)
 }
