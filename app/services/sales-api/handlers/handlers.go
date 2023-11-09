@@ -5,6 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers/debug/checkgrp"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers/v1/testgrp"
+	"github.com/yourusername/basic-a/business/web/mid"
 	"github.com/yourusername/basic-a/foundation/web"
 	"go.uber.org/zap"
 	"net/http"
@@ -94,7 +95,7 @@ type Options struct {
 
 // APIMux constructs a http.Handler with all application routes defined.
 func APIMux(cfg APIMuxConfig, options ...func(opts *Options)) *web.App {
-	app := web.NewApp(cfg.Shutdown)
+	app := web.NewApp(cfg.Shutdown, mid.Logger(cfg.Log))
 
 	// Load the routes for the difference versions API
 	v1(app, cfg)
