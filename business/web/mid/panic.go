@@ -3,6 +3,7 @@ package mid
 import (
 	"context"
 	"fmt"
+	"github.com/yourusername/basic-a/business/sys/metrics"
 	"github.com/yourusername/basic-a/foundation/web"
 	"net/http"
 	"runtime/debug"
@@ -28,7 +29,7 @@ func Panics() web.Middleware {
 					err = fmt.Errorf("PANIC [%v] TRACE[%s]", rec, string(trace))
 
 					// Updates the metrics stored in the context.
-					// metrics.AddPanics(ctx)
+					metrics.AddPanics(ctx)
 				}
 			}()
 
