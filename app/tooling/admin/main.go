@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"io"
@@ -76,6 +77,7 @@ func GenKey() error {
 }
 
 // GenToken generates a JWT for the specified user.
+// 1. 这个函数实现了验签的流程：生成、验证 TOKEN 的流程
 func GenToken() error {
 	// Generating a token requires defining a set of claims. In this applications
 	// case, we only care about defining the subject and the user in question and
@@ -123,13 +125,13 @@ func GenToken() error {
 		return fmt.Errorf("parsing auth private key: %w", err)
 	}
 
-	str, err := token.SignedString(pk)
+	tokenStr, err := token.SignedString(pk)
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("============== TOKEN ===============")
-	fmt.Println(str)
+	fmt.Println(tokenStr)
 	fmt.Println("============== TOKEN ===============")
 	fmt.Print("\n")
 
@@ -155,7 +157,45 @@ func GenToken() error {
 		return fmt.Errorf("encoding to public file: %w", err)
 	}
 
+	keyFunc := func(t *jwt.Token) (any, error) {
+		kid, ok := t.Header["kid"]
+		if !ok {
+			return nil, errors.New("missing key id (kid) in token header")
+		}
+		kidID, ok := kid.(string)
+		if !ok {
+			return nil, errors.New("user token key id (kid) must be string")
+		}
+		fmt.Println("KID:", kidID)
+		// NOT Actual key look up function
+		return &pk.PublicKey, nil
+	}
+
+	// Create the token parser to use. The algorithm used to sign the JWT must be
+	// validated to avoid a critical vulnerability:
+	// https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
+	parser := jwt.NewParser(jwt.WithValidMethods([]string{"RS256"}))
+
+	var pClaims Claims
+	parseToken, err := parser.ParseWithClaims(tokenStr, &pClaims, keyFunc)
+	if err != nil {
+		return fmt.Errorf("parsing token: %w", err)
+	}
+
+	if !parseToken.Valid {
+		return errors.New("invalid token")
+	}
+
+	fmt.Println("============ TOKEN VALIDATION ============")
+	fmt.Println("Token validated")
+
 	return nil
+}
+
+// Claims represents the authorization claims transmitted via a JWT.
+type Claims struct {
+	jwt.RegisteredClaims
+	Roles []string `json:"roles"`
 }
 
 type RegisteredClaim struct {
