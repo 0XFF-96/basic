@@ -5,6 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers/debug/checkgrp"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers/v1/testgrp"
+	"github.com/yourusername/basic-a/business/sys/auth"
 	"github.com/yourusername/basic-a/business/web/mid"
 	"github.com/yourusername/basic-a/foundation/web"
 	"go.uber.org/zap"
@@ -83,7 +84,7 @@ func DebugMux(build string, log *zap.SugaredLogger, db *sqlx.DB) http.Handler {
 type APIMuxConfig struct {
 	Shutdown chan os.Signal
 	Log      *zap.SugaredLogger
-	//Auth     *auth.Auth
+	Auth     *auth.Auth
 	//DB       *sqlx.DB
 	//Tracer   trace.Tracer
 }
@@ -111,6 +112,7 @@ func APIMux(cfg APIMuxConfig, options ...func(opts *Options)) *web.App {
 
 func v1(app *web.App, cfg APIMuxConfig) {
 	const version = "v1"
+	authen := mid.Authenticate(cfg.Auth)
 
 	// Register debug check endpoints.
 	tgh := testgrp.Handlers{
@@ -120,4 +122,6 @@ func v1(app *web.App, cfg APIMuxConfig) {
 
 	// handle path
 	app.Handle(http.MethodGet, version, "/test", tgh.Test)
+	app.Handle(http.MethodGet, version, "/testauth", tgh.Test, authen)
+	app.Handle(http.MethodGet, version, "/testadmin", tgh.Test, authen, mid.Authorize("ADMIN"))
 }

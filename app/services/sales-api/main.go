@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"github.com/ardanlabs/conf/v3"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers"
+	"github.com/yourusername/basic-a/business/sys/auth"
+	"github.com/yourusername/basic-a/foundation/keystore"
 	_ "go.uber.org/automaxprocs"
 	"go.uber.org/automaxprocs/maxprocs"
 	"go.uber.org/zap"
@@ -58,50 +60,14 @@ func run(log *zap.SugaredLogger) error {
 	// =========================================================================
 	// Configuration
 
-	cfg := struct {
-		conf.Version
-		Web struct {
-			ReadTimeout     time.Duration `conf:"default:5s"`
-			WriteTimeout    time.Duration `conf:"default:10s"`
-			IdleTimeout     time.Duration `conf:"default:120s"`
-			ShutdownTimeout time.Duration `conf:"default:20s"`
-			APIHost         string        `conf:"default:0.0.0.0:3000"`
-
-			// `conf:"default:0.0.0.0:4000,noprint"`
-			DebugHost string `conf:"default:0.0.0.0:4000,mask"`
-		}
-		Vault struct {
-			Address   string `conf:"default:http://0.0.0.0:8200"`
-			MountPath string `conf:"default:secret"`
-
-			// This MUST be handled like any root credential.
-			// This value comes from Vault when it starts.
-			Token string `conf:"default:myroot,mask"`
-		}
-		Auth struct {
-			KeysFolder string `conf:"default:zarf/keys/"`
-			ActiveKID  string `conf:"default:54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"`
-		}
-		DB struct {
-			User         string `conf:"default:postgres"`
-			Password     string `conf:"default:postgres,mask"`
-			Host         string `conf:"default:localhost"`
-			Name         string `conf:"default:postgres"`
-			MaxIdleConns int    `conf:"default:0"`
-			MaxOpenConns int    `conf:"default:0"`
-			DisableTLS   bool   `conf:"default:true"`
-		}
-		Zipkin struct {
-			ReporterURI string  `conf:"default:http://localhost:9411/api/v2/spans"`
-			ServiceName string  `conf:"default:sales-api"`
-			Probability float64 `conf:"default:0.05"`
-		}
-	}{
+	cfg := Config{
 		Version: conf.Version{
 			Build: build,
 			Desc:  "copyright information here",
 		},
 	}
+	cfg.Auth.KeysFolder = "zarf/keys/"
+	cfg.Auth.ActiveKID = "54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"
 
 	const prefix = "SALES"
 	help, err := conf.Parse(prefix, &cfg)
@@ -155,11 +121,23 @@ func run(log *zap.SugaredLogger) error {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
+	// Construct a key store based on the key files stored in
+	// the specified directory.
+	ks, err := keystore.NewFS(os.DirFS(cfg.Auth.KeysFolder))
+	if err != nil {
+		return fmt.Errorf("reading keys: %w", err)
+	}
+
+	auth, err := auth.New(cfg.Auth.ActiveKID, ks)
+	if err != nil {
+		return fmt.Errorf("constructing auth: %w", err)
+	}
+
 	// Construct the mux for the API calls.
 	apiMux := handlers.APIMux(handlers.APIMuxConfig{
 		Shutdown: shutdown,
 		Log:      log,
-		//Auth:     auth,
+		Auth:     auth,
 		//DB:       db,
 		//Tracer:   tracer,
 	})
@@ -233,4 +211,44 @@ func initLog(service string) (*zap.SugaredLogger, error) {
 	//}
 	defer log.Sync()
 	return log.Sugar(), nil
+}
+
+type Config struct {
+	conf.Version
+	Web struct {
+		ReadTimeout     time.Duration `conf:"default:5s"`
+		WriteTimeout    time.Duration `conf:"default:10s"`
+		IdleTimeout     time.Duration `conf:"default:120s"`
+		ShutdownTimeout time.Duration `conf:"default:20s"`
+		APIHost         string        `conf:"default:0.0.0.0:3000"`
+
+		// `conf:"default:0.0.0.0:4000,noprint"`
+		DebugHost string `conf:"default:0.0.0.0:4000,mask"`
+	}
+	Vault struct {
+		Address   string `conf:"default:http://0.0.0.0:8200"`
+		MountPath string `conf:"default:secret"`
+
+		// This MUST be handled like any root credential.
+		// This value comes from Vault when it starts.
+		Token string `conf:"default:myroot,mask"`
+	}
+	Auth struct {
+		KeysFolder string `conf:"default:zarf/keys/"`
+		ActiveKID  string `conf:"default:54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"`
+	}
+	DB struct {
+		User         string `conf:"default:postgres"`
+		Password     string `conf:"default:postgres,mask"`
+		Host         string `conf:"default:localhost"`
+		Name         string `conf:"default:postgres"`
+		MaxIdleConns int    `conf:"default:0"`
+		MaxOpenConns int    `conf:"default:0"`
+		DisableTLS   bool   `conf:"default:true"`
+	}
+	Zipkin struct {
+		ReporterURI string  `conf:"default:http://localhost:9411/api/v2/spans"`
+		ServiceName string  `conf:"default:sales-api"`
+		Probability float64 `conf:"default:0.05"`
+	}
 }
