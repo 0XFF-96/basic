@@ -4,6 +4,8 @@ package checkgrp
 import (
 	"context"
 	"encoding/json"
+	"github.com/jmoiron/sqlx"
+	"github.com/yourusername/basic-a/business/sys/database"
 	"net/http"
 	"os"
 	"time"
@@ -15,7 +17,7 @@ import (
 type Handlers struct {
 	Build string
 	Log   *zap.SugaredLogger
-	// DB    *sqlx.DB
+	DB    *sqlx.DB
 }
 
 // Readiness checks if the database is ready and if not will return a 500 status.
@@ -28,10 +30,10 @@ func (h Handlers) Readiness(w http.ResponseWriter, r *http.Request) {
 
 	status := "ok"
 	statusCode := http.StatusOK
-	//if err := database.StatusCheck(ctx, h.DB); err != nil {
-	//	status = "db not ready"
-	//	statusCode = http.StatusInternalServerError
-	//}
+	if err := database.StatusCheck(ctx, h.DB); err != nil {
+		status = "db not ready"
+		statusCode = http.StatusInternalServerError
+	}
 
 	data := struct {
 		Status    string `json:"status"`

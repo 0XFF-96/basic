@@ -8,6 +8,7 @@ import (
 	"github.com/ardanlabs/conf/v3"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers"
 	"github.com/yourusername/basic-a/business/sys/auth"
+	"github.com/yourusername/basic-a/business/sys/database"
 	"github.com/yourusername/basic-a/foundation/keystore"
 	_ "go.uber.org/automaxprocs"
 	"go.uber.org/automaxprocs/maxprocs"
@@ -80,6 +81,37 @@ func run(log *zap.SugaredLogger) error {
 	}
 
 	// =========================================================================
+	// Database Support
+
+	// Create connectivity to the database.
+	log.Infow("startup", "status", "initializing database support", "host", cfg.DB.Host)
+
+	cfg.DB.User = "postgres"
+	cfg.DB.Password = "postgres"
+	cfg.DB.Host = "localhost"
+	cfg.DB.Name = "postgres"
+	cfg.DB.MaxIdleConns = 0
+	cfg.DB.MaxOpenConns = 50
+	cfg.DB.DisableTLS = true
+
+	db, err := database.Open(database.Config{
+		User:         cfg.DB.User,
+		Password:     cfg.DB.Password,
+		Host:         cfg.DB.Host,
+		Name:         cfg.DB.Name,
+		MaxIdleConns: cfg.DB.MaxIdleConns,
+		MaxOpenConns: cfg.DB.MaxOpenConns,
+		DisableTLS:   cfg.DB.DisableTLS,
+	})
+	if err != nil {
+		return fmt.Errorf("connecting to db: %w", err)
+	}
+	defer func() {
+		log.Infow("shutdown", "status", "stopping database support", "host", cfg.DB.Host)
+		db.Close()
+	}()
+
+	// =========================================================================
 	// App Starting
 
 	log.Infow("starting service", "version", build)
@@ -101,7 +133,7 @@ func run(log *zap.SugaredLogger) error {
 	// related endpoints. This includes the standard library endpoints.
 
 	// Construct the mux for the debug calls.
-	debugMux := handlers.DebugMux(build, log, nil)
+	debugMux := handlers.DebugMux(build, log, db)
 
 	// Start the service listening for debug requests.
 	// Not concerned with shutting this down with load shedding.

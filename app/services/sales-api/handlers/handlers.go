@@ -72,7 +72,7 @@ func DebugMux(build string, log *zap.SugaredLogger, db *sqlx.DB) http.Handler {
 	cgh := checkgrp.Handlers{
 		Build: build,
 		Log:   log,
-		// DB:    db,
+		DB:    db,
 	}
 	mux.HandleFunc("/debug/readiness", cgh.Readiness)
 	mux.HandleFunc("/debug/liveness", cgh.Liveness)
