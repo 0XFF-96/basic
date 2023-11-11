@@ -128,3 +128,9 @@ kind-update: all kind-load kind-restart
 # curl -H "" http://localhost:3000/v1/testauth
 # curl -il "" http://localhost:3000/v1/testauth
 #
+
+test:
+	go test -count=1 ./...
+	staticcheck -checks=all ./...
+	govulncheck ./...
+
