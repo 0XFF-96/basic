@@ -18,5 +18,7 @@
     3. 增加 https://github.com/dimfeld/httptreemux 相关依赖
     4. 重构 APIMux， 变成洋葱式和其他方式的切片架构。
     5. 增加 JWT https://jwt.io/ 
-    6. 
+    6. DB lab 相关的内容
+        1. https://github.com/danvergara/dblab 
+        
 

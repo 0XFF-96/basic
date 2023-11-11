@@ -134,3 +134,16 @@ test:
 	staticcheck -checks=all ./...
 	govulncheck ./...
 
+kind-status-db:
+	kubectl get pods -o wide --watch --namespace=database-system
+
+db-apply:
+	kustomize build zarf/k8s/kind/database-pod | kubectl apply -f -
+	kubectl wait --namespace=database-system --timeout=120s --for=condition=Available deployment/database-pod
+
+db-status:
+	kubectl get pods -n=database-system -o wide --watch
+	kubectl get svc -n=database-system -o wide
+
+
+# dblab --host localhost --user postgres --db postgres --pass postgres --ssl disable --port 5432 --driver postgres --limit 50
