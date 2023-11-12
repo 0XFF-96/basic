@@ -10,6 +10,10 @@ WORKDIR /service/app/services/sales-api
 ENV GOOS=linux
 RUN go build -o sales-api-e -ldflags "-X main.build=local"
 
+# Build the admin binary.
+WORKDIR /service/app/tooling/admin
+RUN go build -o admin -ldflags "-X main.build=${BUILD_REF}"
+
 FROM alpine:3.18
 ARG BUILD_DATE
 ARG BUILD_REF
@@ -21,6 +25,8 @@ RUN addgroup -g 1000 -S sales && \
 # 存储 key 的相关 folder ~
 COPY --from=build_sales-api --chown=sales:sales /service/zarf/keys/. /service/zarf/keys/.
 COPY --from=build_sales-api --chown=sales:sales /service/app/services/sales-api/ /service/sales-api
+
+COPY --from=build_sales-api --chown=sales:sales /service/app/tooling/admin/admin /service/admin
 
 WORKDIR /service
 USER sales
