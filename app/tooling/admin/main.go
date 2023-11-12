@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -8,17 +9,77 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/yourusername/basic-a/business/data/schema"
+	"github.com/yourusername/basic-a/business/sys/database"
 	"io"
 	"os"
 	"time"
 )
 
 func main() {
-	err := GenToken()
+	err := migrate()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	fmt.Println("migrate")
+
+	err = seed()
+	if err != nil {
+		fmt.Println("err:%w", err)
+	}
+	fmt.Println("seed")
+}
+
+func migrate() error {
+	db, err := database.Open(database.Config{
+		User:         "postgres",
+		Password:     "postgres",
+		Host:         "localhost",
+		Name:         "postgres",
+		MaxIdleConns: 0,
+		MaxOpenConns: 0,
+		DisableTLS:   true,
+	})
+	if err != nil {
+		return fmt.Errorf("connect database: %w", err)
+	}
+	defer db.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := schema.Migrate(ctx, db); err != nil {
+		return fmt.Errorf("migrate database: %w", err)
+	}
+
+	fmt.Println("migrations complete")
+	return nil
+}
+
+func seed() error {
+	db, err := database.Open(database.Config{
+		User:         "postgres",
+		Password:     "postgres",
+		Host:         "localhost",
+		Name:         "postgres",
+		MaxIdleConns: 0,
+		MaxOpenConns: 0,
+		DisableTLS:   true,
+	})
+	if err != nil {
+		return fmt.Errorf("connect database: %w", err)
+	}
+	defer db.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := schema.Seed(ctx, db); err != nil {
+		return fmt.Errorf("migrate database: %w", err)
+	}
+	return nil
 }
 
 // GenKey creates an x509 private/public key for auth tokens.
