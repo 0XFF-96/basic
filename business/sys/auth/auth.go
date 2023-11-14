@@ -5,6 +5,8 @@ import (
 	"crypto/rsa"
 	"errors"
 	"fmt"
+	"github.com/jmoiron/sqlx"
+	"go.uber.org/zap"
 
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -30,7 +32,7 @@ type Auth struct {
 }
 
 // New creates an Auth to support authentication/authorization.
-func New(activeKID string, keyLookup KeyLookup) (*Auth, error) {
+func New(cfg Config) (*Auth, error) {
 	method := jwt.GetSigningMethod("RS256")
 	if method == nil {
 		return nil, errors.New("configuring algorithm RS256")
@@ -45,7 +47,7 @@ func New(activeKID string, keyLookup KeyLookup) (*Auth, error) {
 		if !ok {
 			return nil, errors.New("user token key id (kid) must be string")
 		}
-		return keyLookup.PublicKey(kidID)
+		return cfg.KeyLookup.PublicKey(kidID)
 	}
 
 	// Create the token parser to use. The algorithm used to sign the JWT must be
@@ -54,8 +56,8 @@ func New(activeKID string, keyLookup KeyLookup) (*Auth, error) {
 	parser := jwt.NewParser(jwt.WithValidMethods([]string{"RS256"}))
 
 	a := Auth{
-		activeKID: activeKID,
-		keyLookup: keyLookup,
+		// activeKID: ,
+		keyLookup: cfg.KeyLookup,
 		method:    method,
 		keyFunc:   keyFunc,
 		parser:    parser,
@@ -96,4 +98,11 @@ func (a *Auth) ValidateToken(tokenStr string) (Claims, error) {
 	}
 
 	return claims, nil
+}
+
+// Config represents information required to initialize auth.
+type Config struct {
+	Log       *zap.SugaredLogger
+	DB        *sqlx.DB
+	KeyLookup KeyLookup
 }

@@ -20,5 +20,7 @@
     5. 增加 JWT https://jwt.io/ 
     6. DB lab 相关的内容
         1. https://github.com/danvergara/dblab 
+        2. 成功运行本地测试数据库📊 
+            github.com/basic/business/data/store/user (master*) » go test -v
         
 

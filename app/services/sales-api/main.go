@@ -160,7 +160,7 @@ func run(log *zap.SugaredLogger) error {
 		return fmt.Errorf("reading keys: %w", err)
 	}
 
-	auth, err := auth.New(cfg.Auth.ActiveKID, ks)
+	auth, err := auth.New(auth.Config{KeyLookup: ks, DB: db, Log: log})
 	if err != nil {
 		return fmt.Errorf("constructing auth: %w", err)
 	}
