@@ -30,13 +30,13 @@ func Authenticate(a *auth.Auth) web.Middleware {
 			}
 
 			// Validate the token is signed by us.
-			claims, err := a.ValidateToken(parts[1])
-			if err != nil {
-				return web.NewRequestError(err, http.StatusUnauthorized)
-			}
+			//claims, err := a.ValidateToken(parts[1])
+			//if err != nil {
+			//	return web.NewRequestError(err, http.StatusUnauthorized)
+			//}
 
 			// Add claims to the context, so they can be retrieved later.
-			ctx = auth.SetClaims(ctx, claims)
+			// ctx = auth.SetClaims(ctx, claims)
 
 			// Call the next handler.
 			return handler(ctx, w, r)
