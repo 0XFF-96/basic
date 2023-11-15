@@ -147,3 +147,12 @@ db-status:
 
 
 # dblab --host localhost --user postgres --db postgres --pass postgres --ssl disable --port 5432 --driver postgres --limit 50
+
+zip-apply:
+	kustomize build zarf/k8s/basic/zipkin | kubectl apply -f -
+	kubectl wait --timeout=120s --namespace=sales-system --for=condition=Available deployment/zipkin
+
+# http://localhost:9411/zipkin/
+zipkin:
+	open -a "Google Chrome" http://zipkin-service.sales-system.svc.cluster.local:9411/zipkin/
+

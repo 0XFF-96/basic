@@ -12,9 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package otel // import "go.opentelemetry.io/otel"
+package zipkin // import "go.opentelemetry.io/otel/exporters/zipkin"
 
-// Version is the current release version of OpenTelemetry in use.
-func Version() string {
-	return "1.20.0"
+import "os"
+
+// Environment variable names.
+const (
+	// Endpoint for Zipkin collector.
+	envEndpoint = "OTEL_EXPORTER_ZIPKIN_ENDPOINT"
+)
+
+// envOr returns an env variable's value if it is exists or the default if not.
+func envOr(key, defaultValue string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return defaultValue
 }

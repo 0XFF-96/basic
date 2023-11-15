@@ -7,6 +7,13 @@ import (
 	"fmt"
 	"github.com/ardanlabs/conf/v3"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
+
+	"go.opentelemetry.io/otel/exporters/zipkin"
 	// "github.com/yourusername/basic-a/business/sys/auth"
 	"github.com/yourusername/basic-a/business/web/auth"
 
@@ -81,6 +88,28 @@ func run(log *zap.SugaredLogger) error {
 		}
 		return fmt.Errorf("parsing config: %w", err)
 	}
+
+	// =========================================================================
+	// Start Tracing Support
+
+	// tracing
+	cfg.Zipkin.ServiceName = "sales-api"
+	cfg.Zipkin.ReporterURI = "http://localhost:9411/api/v2/spans"
+	cfg.Zipkin.Probability = 0.05
+
+	log.Infow("startup", "status", "initializing OT/Zipkin tracing support")
+
+	traceProvider, err := startTracing(
+		cfg.Zipkin.ServiceName,
+		cfg.Zipkin.ReporterURI,
+		cfg.Zipkin.Probability,
+	)
+	if err != nil {
+		return fmt.Errorf("starting tracing: %w", err)
+	}
+	defer traceProvider.Shutdown(context.Background())
+
+	tracer := traceProvider.Tracer("service")
 
 	// =========================================================================
 	// Database Support
@@ -173,7 +202,7 @@ func run(log *zap.SugaredLogger) error {
 		Log:      log,
 		Auth:     auth,
 		DB:       db,
-		//Tracer:   tracer,
+		Tracer:   tracer,
 	})
 
 	// Construct a server to service the requests against the mux.
@@ -285,4 +314,45 @@ type Config struct {
 		ServiceName string  `conf:"default:sales-api"`
 		Probability float64 `conf:"default:0.05"`
 	}
+}
+
+// =============================================================================
+
+// startTracing configure open telemetry to be used with zipkin.
+func startTracing(serviceName string, reporterURI string, probability float64) (*trace.TracerProvider, error) {
+
+	// WARNING: The current settings are using defaults which may not be
+	// compatible with your project. Please review the documentation for
+	// opentelemetry.
+
+	exporter, err := zipkin.New(
+		reporterURI,
+		// zipkin.WithLogger(zap.NewStdLog(log)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("creating new exporter: %w", err)
+	}
+
+	traceProvider := trace.NewTracerProvider(
+		trace.WithSampler(trace.TraceIDRatioBased(probability)),
+		trace.WithBatcher(exporter,
+			trace.WithMaxExportBatchSize(trace.DefaultMaxExportBatchSize),
+			trace.WithBatchTimeout(trace.DefaultScheduleDelay*time.Millisecond),
+			trace.WithMaxExportBatchSize(trace.DefaultMaxExportBatchSize),
+		),
+		trace.WithResource(
+			resource.NewWithAttributes(
+				semconv.SchemaURL,
+				semconv.ServiceNameKey.String(serviceName),
+				attribute.String("exporter", "zipkin"),
+			),
+		),
+	)
+
+	// We must set this provider as the global provider for things to work,
+	// but we pass this provider around the program where needed to collect
+	// our traces.
+	otel.SetTracerProvider(traceProvider)
+
+	return traceProvider, nil
 }

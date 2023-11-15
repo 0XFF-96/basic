@@ -1,4 +1,4 @@
-// Copyright The OpenTelemetry Authors
+// Copyright 2022 The OpenZipkin Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package otel // import "go.opentelemetry.io/otel"
+/*
+Package model contains the Zipkin V2 model which is used by the Zipkin Go
+tracer implementation.
 
-// Version is the current release version of OpenTelemetry in use.
-func Version() string {
-	return "1.20.0"
-}
+Third party instrumentation libraries can use the model and transport packages
+found in this Zipkin Go library to directly interface with the Zipkin Server or
+Zipkin Collectors without the need to use the tracer implementation itself.
+*/
+package model

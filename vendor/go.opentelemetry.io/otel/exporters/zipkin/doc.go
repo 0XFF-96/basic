@@ -12,9 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package otel // import "go.opentelemetry.io/otel"
-
-// Version is the current release version of OpenTelemetry in use.
-func Version() string {
-	return "1.20.0"
-}
+// Package zipkin contains an OpenTelemetry tracing exporter for Zipkin.
+package zipkin // import "go.opentelemetry.io/otel/exporters/zipkin"

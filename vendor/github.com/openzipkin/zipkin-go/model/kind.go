@@ -1,4 +1,4 @@
-// Copyright The OpenTelemetry Authors
+// Copyright 2022 The OpenZipkin Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package otel // import "go.opentelemetry.io/otel"
+package model
 
-// Version is the current release version of OpenTelemetry in use.
-func Version() string {
-	return "1.20.0"
-}
+// Kind clarifies context of timestamp, duration and remoteEndpoint in a span.
+type Kind string
+
+// Available Kind values
+const (
+	Undetermined Kind = ""
+	Client       Kind = "CLIENT"
+	Server       Kind = "SERVER"
+	Producer     Kind = "PRODUCER"
+	Consumer     Kind = "CONSUMER"
+)

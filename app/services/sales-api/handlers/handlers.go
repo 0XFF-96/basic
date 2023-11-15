@@ -9,6 +9,8 @@ import (
 	"github.com/yourusername/basic-a/business/core/user"
 	userStore "github.com/yourusername/basic-a/business/data/store/user"
 	"github.com/yourusername/basic-a/business/data/store/user/usercache"
+	"go.opentelemetry.io/otel/trace"
+
 	// 	"github.com/yourusername/basic-a/business/sys/auth"
 	"github.com/yourusername/basic-a/business/web/auth"
 	"github.com/yourusername/basic-a/business/web/mid"
@@ -92,7 +94,7 @@ type APIMuxConfig struct {
 	Log      *zap.SugaredLogger
 	Auth     *auth.Auth
 	DB       *sqlx.DB
-	//Tracer   trace.Tracer
+	Tracer   trace.Tracer
 }
 
 // Options represent optional parameters.

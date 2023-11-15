@@ -11,3 +11,7 @@ nodes:
       # 数据库的相关端口
       - containerPort: 5432
         hostPort: 5432
+
+      # Tempo (tracing)
+      - containerPort: 9411
+        hostPort: 9411
