@@ -7,11 +7,10 @@ import (
 	"crypto/rsa"
 	"crypto/x509" // Calls init function.
 	"encoding/pem"
+	"github.com/yourusername/basic-a/foundation/docker"
+	"github.com/yourusername/basic-a/foundation/vault"
 	"testing"
 	"time"
-
-	"github.com/ardanlabs/service/foundation/docker"
-	"github.com/ardanlabs/service/foundation/vault"
 )
 
 // Success and failure markers.

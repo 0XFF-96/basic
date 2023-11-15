@@ -9,8 +9,9 @@ import (
 	"fmt"
 	"github.com/yourusername/basic-a/business/data/schema"
 	"github.com/yourusername/basic-a/business/data/store/user"
-	"github.com/yourusername/basic-a/business/sys/auth"
+	// "github.com/yourusername/basic-a/business/sys/auth"
 	"github.com/yourusername/basic-a/business/sys/database"
+	"github.com/yourusername/basic-a/business/web/auth"
 	"github.com/yourusername/basic-a/foundation/docker"
 	"testing"
 	"time"
@@ -189,7 +190,7 @@ func (test *Test) Token(email string, pass string) string {
 		Roles: dbUsr.Roles,
 	}
 
-	token, err := test.Auth.GenerateToken(claims)
+	token, err := test.Auth.GenerateToken("", claims)
 	if err != nil {
 		test.t.Fatal(err)
 	}
