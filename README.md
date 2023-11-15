@@ -22,5 +22,9 @@
         1. https://github.com/danvergara/dblab 
         2. 成功运行本地测试数据库📊 
             github.com/basic/business/data/store/user (master*) » go test -v
-        
 
+    7. upgrade dependency & software version 
+    8. finish the project
+    9. hey , update some trafic load, 模拟网络流量
+    10. ultimate-go: https://www.bilibili.com/video/BV12341137Fo/?is_story_h5=false&p=1&share_from=ugc&share_medium=android&share_plat=android&share_session_id=72080e30-da82-45a3-926a-d251d9433f50&share_source=COPY&share_tag=s_i&timestamp=1664991916&unique_k=aBYklAq&vd_source=fd3a715c532ca990e4a8a6902ac1478c 
+    11. 13 hours 的视频 & 基本✅
