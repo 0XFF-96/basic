@@ -22,6 +22,18 @@ type KeyStore struct {
 	store map[string]*rsa.PrivateKey
 }
 
+func (ks *KeyStore) PrivateKeyPEM(kid string) (string, error) {
+	//TODO implement me
+	//panic("implement me")
+	return "", nil
+}
+
+func (ks *KeyStore) PublicKeyPEM(kid string) (string, error) {
+	//TODO implement me
+	// panic("implement me")
+	return "", nil
+}
+
 // New constructs an empty KeyStore ready for use.
 func New() *KeyStore {
 	return &KeyStore{

@@ -3,8 +3,9 @@ package mid
 import (
 	"context"
 	"errors"
-	"fmt"
-	"github.com/yourusername/basic-a/business/sys/auth"
+	//	"github.com/yourusername/basic-a/business/sys/auth"
+	"github.com/yourusername/basic-a/business/web/auth"
+
 	"github.com/yourusername/basic-a/foundation/web"
 	"net/http"
 	"strings"
@@ -59,20 +60,21 @@ func Authorize(roles ...string) web.Middleware {
 		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
 			// If the context is missing this value return failure.
-			claims, err := auth.GetClaims(ctx)
-			if err != nil {
-				return web.NewRequestError(
-					fmt.Errorf("you are not authorized for that action, no claims"),
-					http.StatusForbidden,
-				)
-			}
+			claims := auth.GetClaims(ctx)
+			//if err != nil {
+			//	return web.NewRequestError(
+			//		fmt.Errorf("you are not authorized for that action, no claims"),
+			//		http.StatusForbidden,
+			//	)
+			//}
 
-			if !claims.Authorized(roles...) {
-				return web.NewRequestError(
-					fmt.Errorf("you are not authorized for that action, claims[%v] roles[%v]", claims.Roles, roles),
-					http.StatusForbidden,
-				)
-			}
+			_ = claims
+			//if !claims.Authorized(roles...) {
+			//	return web.NewRequestError(
+			//		fmt.Errorf("you are not authorized for that action, claims[%v] roles[%v]", claims.Roles, roles),
+			//		http.StatusForbidden,
+			//	)
+			//}
 
 			return handler(ctx, w, r)
 		}

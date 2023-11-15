@@ -5,9 +5,15 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers/debug/checkgrp"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers/v1/testgrp"
-	"github.com/yourusername/basic-a/business/sys/auth"
+	"github.com/yourusername/basic-a/app/services/sales-api/handlers/v1/usergrp"
+	"github.com/yourusername/basic-a/business/core/user"
+	userStore "github.com/yourusername/basic-a/business/data/store/user"
+	"github.com/yourusername/basic-a/business/data/store/user/usercache"
+	// 	"github.com/yourusername/basic-a/business/sys/auth"
+	"github.com/yourusername/basic-a/business/web/auth"
 	"github.com/yourusername/basic-a/business/web/mid"
 	"github.com/yourusername/basic-a/foundation/web"
+
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/pprof"
@@ -85,7 +91,7 @@ type APIMuxConfig struct {
 	Shutdown chan os.Signal
 	Log      *zap.SugaredLogger
 	Auth     *auth.Auth
-	//DB       *sqlx.DB
+	DB       *sqlx.DB
 	//Tracer   trace.Tracer
 }
 
@@ -113,12 +119,24 @@ func APIMux(cfg APIMuxConfig, options ...func(opts *Options)) *web.App {
 func v1(app *web.App, cfg APIMuxConfig) {
 	const version = "v1"
 	authen := mid.Authenticate(cfg.Auth)
+	admin := mid.Authorize(auth.RuleAdminOnly)
 
 	// Register debug check endpoints.
 	tgh := testgrp.Handlers{
 		Log: cfg.Log,
 		// DB:    db,
 	}
+
+	ugh := usergrp.Handlers{
+		User: user.NewCore(usercache.NewStore(cfg.Log, userStore.NewStore(cfg.Log, cfg.DB))),
+		Auth: cfg.Auth,
+	}
+	app.Handle(http.MethodGet, version, "/users/token/:kid", ugh.Token)
+	app.Handle(http.MethodGet, version, "/users/:page/:rows", ugh.Query, authen, admin)
+	app.Handle(http.MethodGet, version, "/users/:id", ugh.QueryByID, authen)
+	app.Handle(http.MethodPost, version, "/users", ugh.Create, authen, admin)
+	app.Handle(http.MethodPut, version, "/users/:id", ugh.Update, authen, admin)
+	app.Handle(http.MethodDelete, version, "/users/:id", ugh.Delete, authen, admin)
 
 	// handle path
 	app.Handle(http.MethodGet, version, "/test", tgh.Test)

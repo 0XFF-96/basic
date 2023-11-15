@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"github.com/ardanlabs/conf/v3"
 	"github.com/yourusername/basic-a/app/services/sales-api/handlers"
-	"github.com/yourusername/basic-a/business/sys/auth"
+	// "github.com/yourusername/basic-a/business/sys/auth"
+	"github.com/yourusername/basic-a/business/web/auth"
+
 	"github.com/yourusername/basic-a/business/sys/database"
 	"github.com/yourusername/basic-a/foundation/keystore"
 	_ "go.uber.org/automaxprocs"
@@ -170,7 +172,7 @@ func run(log *zap.SugaredLogger) error {
 		Shutdown: shutdown,
 		Log:      log,
 		Auth:     auth,
-		//DB:       db,
+		DB:       db,
 		//Tracer:   tracer,
 	})
 
