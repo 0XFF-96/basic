@@ -16,21 +16,6 @@ type Handlers struct {
 // Create adds a new user to the system.
 func (h Handlers) Test(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
-	randn := rand.Intn(100)
-	if randn%2 == 0 {
-		panic("panic error")
-	}
-
-	if randn%5 == 0 {
-		return web.NewShutdownError("ShutdownError error")
-	}
-
-	status := struct {
-		Status string `json:"status"`
-	}{
-		Status: "ok",
-	}
-
 	statusCode := http.StatusOK
 
 	h.Log.Infow("readiness",
